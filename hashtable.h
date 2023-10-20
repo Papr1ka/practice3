@@ -123,6 +123,8 @@ public:
 
     void insert(int key, int value);
 
+    void update(int key, int newValue, bool& success);
+
     bool needRehash();
 
     int pop(int key);
@@ -148,8 +150,12 @@ public:
     void insert(int key, int value);
 
     int get(int key, bool& success);
-
+    
+    void update(int key, int newValue, bool& success);
+    
     int remove(int key, bool& success);
+
+    int update(int key, bool& success);
 
     friend void testHeshT();
 };

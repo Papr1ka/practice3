@@ -102,6 +102,26 @@ void testHeshT()
     {
         cout << "Ошибка, элемент не найден" << endl;
     }
+
+    LINE()
+    cout << "Проверка замены значения элемента, метод udpate" << endl;
+    key = 111001; 
+    cout << "Ключ " << key << " значение " << table->get(111001) << endl;
+    int newValue = 58;
+    cout << "Изменение значения на" << newValue << endl;
+    bool success;
+    table->update(key, newValue, success);
+ 
+    if (success)
+    {
+        cout << "Значение изменено" << endl;
+    }
+    else
+    {
+        cout << "Ошибка, не вышло" << endl;
+    }
+    cout << "Ключ " << key << " значение " << table->get(111001) << endl;
+    cout << "Тестирование завершено" << endl;
 }
 
 int HTable::getKeyHash(int key)
@@ -233,6 +253,21 @@ HTable* HTable::reHash(HTable* oldTable)
 }
 
 
+void HTable::update(int key, int newValue, bool& success)
+{
+	int index = this->find(key);
+	if (index != -1)
+	{
+		success = false;
+	}
+	this->items[index].value = newValue;
+	success = true;
+}
+
+void HashTable::update(int key, int newValue, bool& success)
+{
+	this->table->update(key, newValue, success);
+}
 
 void HashTable::reHash()
 {
@@ -284,5 +319,5 @@ int HashTable::remove(int key, bool& success)
         return 0;
     }
     success = true;
-    return this->table->pop(key);
+    return this->table->get(index);
 }

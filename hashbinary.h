@@ -8,9 +8,12 @@
 #include "hashtable.h"
 #include "binaryutils.h"
 
-void readInsert(int number);
-void deleteRemove(int number);
-Ticket* readGet(int key);
+int readInsert(const string& filename, int number, HashTable* table);
 
+int deleteRemove(const string& filename, int key, HashTable* table);
+
+int readGet(const string& filename, int key, HashTable* table, Ticket*& toWrite);
+
+void test();
 
 #endif //SIAOD3_HASHBINARY_H

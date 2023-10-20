@@ -19,11 +19,13 @@ int readInsert(const string& filename, int number, HashTable* table)
 int deleteRemove(const string& filename, int key, HashTable* table)
 {
     bool success;
-    int index = table->remove(key, success);
+    int number = table->remove(key, success);
     if (success)
     {
-        return deleteRecordFromBinByKey(filename, key);
-        deleteRecordFromBinByNumber(filename, index);
+        deleteRecordFromBinByNumber(filename, number);
+	Ticket* lastTicker;
+	int r = getRecordFromBin(filename, number, lastTicket);
+	table->update(lastTicket->key, number);
         //добавить в таблицу метод update
         //заменить в таблице значение элемента с ключом последнего элемента в файле на номер index
     }
@@ -40,4 +42,49 @@ int readGet(const string& filename, int key, HashTable* table, Ticket*& toWrite)
         return getRecordFromBin(filename, index, toWrite);
     }
     return -3;
+}
+
+void test()
+{
+#define RECORDSINFILE 5
+	int r;
+	string textfilename = "input.txt";
+	string filename = "test.bin";
+
+	convertTextToBin(textfilename, filename);
+
+	HashTable table = new HashTable(RECORDSINFILE);
+	int keys[RECORDSINFILE];
+
+	for (int i = 0; i < RECORDSINFILE; i++)
+	{
+		r = readInsert(filename, i, table);
+		keys[i] = r;
+	}
+
+	deleteRemove(filename, keys[2]);
+	PRINTEXECTIME(
+	r = table->get(keys[3]);
+	)
+	
+	Ticket* buffer = new Ticket();
+	string value = "value for 1000000 test"
+	strcpy(buffer->fio);
+	value = "1234567890";
+	strcpy(buffer->phoneNumber);
+
+	for (int i = 0; i < 1000000; i++)
+	{
+		buffer->key = i;
+		addRecordToBin(filename, buffer);
+	}
+	PRINTEXECTIME(
+	r = table->get(3);
+	)
+	PRINTEXECTIME(
+	r = table->get(450000);
+	)
+	PRINTEXECTIME(
+	r = table->get(999000);
+	)
 }

@@ -28,7 +28,7 @@
 };
 
 using namespace std;
-
+ 
 //конвертация из текстового формата в двоичный
 int convertTextToBin(const string& filename1, const string& filename2);
 //получение записи по порядковому номеру
@@ -44,6 +44,7 @@ int deleteRecordFromBinByKey(const string& filename, int key);
 int deleteRecordFromBinByNumber(const string& filename, int number);
 //добавление записи в конец файла
 int addRecordToBin(const string& filename, const Ticket* record);
+
 //вывод файла
 int printFromBin(const string& filename1);
 

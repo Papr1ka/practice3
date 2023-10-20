@@ -33,7 +33,7 @@
 
 #define LINE() \
 {              \
-    cout << endl << "#----------------------------------------------------#" << endl;               \
+    cout << endl << "#----------------------------------------------------#" << endl;\
 }
 
 #define CLEAR(allocated) \
@@ -52,6 +52,15 @@ for (int i = 0; i < table->table->m; i++) \
     table->table->items[i].print(); \
 }                    \
 cout << "Размер " << table->table->m << endl;\
+}
+
+#define PRINTEXECTIME(function) \
+{ \
+	auto begin = std::chrono::steady_clock::now(); \
+	function \
+	auto end = std::chrono::steady_clock::now(); \
+  	auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin); \
+	cout << "Выполнение операции заняло " << elapsed_ms.count() << endl; \
 }
 
 #endif //SIAOD3_DEBUGTOOLS_H
