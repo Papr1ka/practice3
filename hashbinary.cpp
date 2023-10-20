@@ -1,9 +1,10 @@
 #include "hashbinary.h"
 #include "ReaderTicket.h"
+#include <chrono>
 
 //key must be greater then 0
 
-int readInsert(const string& filename, int number, HashTable* table)
+int readInsert(const string& filename, int number, HashTable<int>* table)
 {
     Ticket* record = new Ticket();
     int r = getRecordFromBin(filename, number, record);
@@ -16,16 +17,21 @@ int readInsert(const string& filename, int number, HashTable* table)
 }
 
 
-int deleteRemove(const string& filename, int key, HashTable* table)
+int deleteRemove(const string& filename, int key,  HashTable<int>* table)
 {
     bool success;
-    int number = table->remove(key, success);
+    int number = table->pop(key, success);
     if (success)
     {
         deleteRecordFromBinByNumber(filename, number);
-	Ticket* lastTicker;
-	int r = getRecordFromBin(filename, number, lastTicket);
-	table->update(lastTicket->key, number);
+        Ticket* lastTicket;
+        int r = getRecordFromBin(filename, number, lastTicket);
+        table->update(lastTicket->key, number, success);
+        if (success)
+        {
+            return 0;
+        }
+        return -1;
         //добавить в таблицу метод update
         //заменить в таблице значение элемента с ключом последнего элемента в файле на номер index
     }
@@ -33,7 +39,7 @@ int deleteRemove(const string& filename, int key, HashTable* table)
 }
 
 
-int readGet(const string& filename, int key, HashTable* table, Ticket*& toWrite)
+int readGet(const string& filename, int key,  HashTable<int>* table, Ticket*& toWrite)
 {
     bool success;
     int index = table->get(key, success);
@@ -44,47 +50,50 @@ int readGet(const string& filename, int key, HashTable* table, Ticket*& toWrite)
     return -3;
 }
 
-void test()
-{
+void test() {
 #define RECORDSINFILE 5
-	int r;
-	string textfilename = "input.txt";
-	string filename = "test.bin";
+    int r;
+    string textfilename = "input.txt";
+    string filename = "test.bin";
 
-	convertTextToBin(textfilename, filename);
+    convertTextToBin(textfilename, filename);
 
-	HashTable table = new HashTable(RECORDSINFILE);
-	int keys[RECORDSINFILE];
+    HashTable<int>* table = new  HashTable<int>(RECORDSINFILE);
+    int keys[RECORDSINFILE];
 
-	for (int i = 0; i < RECORDSINFILE; i++)
-	{
-		r = readInsert(filename, i, table);
-		keys[i] = r;
-	}
+    for (int i = 0; i < RECORDSINFILE; i++) {
+        r = readInsert(filename, i, table);
+        keys[i] = r;
+    }
+    bool success;
 
-	deleteRemove(filename, keys[2]);
-	PRINTEXECTIME(
-	r = table->get(keys[3]);
-	)
-	
-	Ticket* buffer = new Ticket();
-	string value = "value for 1000000 test"
-	strcpy(buffer->fio);
-	value = "1234567890";
-	strcpy(buffer->phoneNumber);
+    deleteRemove(filename, keys[2], table);
+    PRINTEXECTIME(
+            r = table->get, keys[3], success
+    )
+    Ticket *buffer = new Ticket();
+    const char *value = "value for 1000000 test";
+    strcpy(buffer->fio, value);
+    value = "1234567890";
+    strcpy(buffer->phoneNumber, value);
 
-	for (int i = 0; i < 1000000; i++)
-	{
-		buffer->key = i;
-		addRecordToBin(filename, buffer);
-	}
-	PRINTEXECTIME(
-	r = table->get(3);
-	)
-	PRINTEXECTIME(
-	r = table->get(450000);
-	)
-	PRINTEXECTIME(
-	r = table->get(999000);
-	)
+    for (int i = 0; i < 1000000; i++) {
+        buffer->key = i;
+        addRecordToBin(filename, buffer);
+    }
+    for (int i = 0; i < 1000000; i++)
+    {
+        readInsert(filename, i, table);
+    }
+    PRINTEXECTIME(
+            r = table->get, 3, success
+    )
+    PRINTEXECTIME(
+            r = table->get, 450000, success
+    )
+    PRINTEXECTIME(
+            r = table->get, 999000, success
+    )
+    delete table;
+    delete buffer;
 }

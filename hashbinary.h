@@ -7,12 +7,13 @@
 
 #include "hashtable.h"
 #include "binaryutils.h"
+#include "HashTable.h"
 
-int readInsert(const string& filename, int number, HashTable* table);
+int readInsert(const string& filename, int number, HashTable<int>* table);
 
-int deleteRemove(const string& filename, int key, HashTable* table);
+int deleteRemove(const string& filename, int key, HashTable<int>* table);
 
-int readGet(const string& filename, int key, HashTable* table, Ticket*& toWrite);
+int readGet(const string& filename, int key, HashTable<int>* table, Ticket*& toWrite);
 
 void test();
 

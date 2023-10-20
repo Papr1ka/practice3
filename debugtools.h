@@ -46,18 +46,18 @@
 {                    \
 cout << "Таблица:" << endl; \
 cout << setw(3) << "i" << setw(16) << "Ключ" << setw(4) << "O?" << setw(3) << "D?" << setw(13) << "indexes[...]" << endl;                  \
-for (int i = 0; i < table->table->m; i++) \
+for (int i = 0; i < table->m; i++) \
 { \
     cout << setw(3) << i; \
-    table->table->items[i].print(); \
+    table->items[i].print(); \
 }                    \
-cout << "Размер " << table->table->m << endl;\
+cout << "Размер " << table->m << endl;\
 }
 
-#define PRINTEXECTIME(function) \
+#define PRINTEXECTIME(function, param1, param2) \
 { \
 	auto begin = std::chrono::steady_clock::now(); \
-	function \
+	function(param1, param2); \
 	auto end = std::chrono::steady_clock::now(); \
   	auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin); \
 	cout << "Выполнение операции заняло " << elapsed_ms.count() << endl; \
