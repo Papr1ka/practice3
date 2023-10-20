@@ -1,17 +1,19 @@
 #include "hashbinary.h"
-#include "ReaderTicket.h"
 #include <chrono>
 
 //key must be greater then 0
 
-int readInsert(const string& filename, int number, HashTable<int>* table)
+int readInsert(const string& filename, int number, HashTable<int>* table, Ticket*& toWrite)
 {
-    Ticket* record = new Ticket();
-    int r = getRecordFromBin(filename, number, record);
+    if (toWrite == nullptr)
+    {
+        toWrite = new Ticket();
+    }
+    int r = getRecordFromBin(filename, number, toWrite);
 
     if (r == 0)
     {
-        table->insert(record->key, number);
+        table->insert(toWrite->key, number);
     }
     return r;
 }
@@ -39,15 +41,14 @@ int deleteRemove(const string& filename, int key,  HashTable<int>* table)
 }
 
 
-int readGet(const string& filename, int key,  HashTable<int>* table, Ticket*& toWrite)
+int readGet(const string& filename, int key,  HashTable<int>* table, Ticket*& toWrite, bool& success)
 {
-    bool success;
     int index = table->get(key, success);
     if (success)
     {
         return getRecordFromBin(filename, index, toWrite);
     }
-    return -3;
+    return 0;
 }
 
 void test() {
@@ -61,16 +62,16 @@ void test() {
     HashTable<int>* table = new  HashTable<int>(RECORDSINFILE);
     int keys[RECORDSINFILE];
 
-    for (int i = 0; i < RECORDSINFILE; i++) {
-        r = readInsert(filename, i, table);
-        keys[i] = r;
+    Ticket* b;
+
+    for (int i = 1; i < RECORDSINFILE + 1; i++)
+    {
+        r = readInsert(filename, i, table, b);
+        keys[i - 1] = b->key;
     }
     bool success;
 
     deleteRemove(filename, keys[2], table);
-    PRINTEXECTIME(
-            r = table->get, keys[3], success
-    )
     Ticket *buffer = new Ticket();
     const char *value = "value for 1000000 test";
     strcpy(buffer->fio, value);
@@ -83,16 +84,16 @@ void test() {
     }
     for (int i = 0; i < 1000000; i++)
     {
-        readInsert(filename, i, table);
+        readInsert(filename, i, table, b);
     }
     PRINTEXECTIME(
-            r = table->get, 3, success
+            readGet(filename, 3, table, buffer, success);
     )
     PRINTEXECTIME(
-            r = table->get, 450000, success
+            readGet(filename, 3, table, buffer, success);
     )
     PRINTEXECTIME(
-            r = table->get, 999000, success
+            readGet(filename, 3, table, buffer, success);
     )
     delete table;
     delete buffer;

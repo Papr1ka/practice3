@@ -5,11 +5,11 @@
 #ifndef SIAOD3_HASHBINARY_H
 #define SIAOD3_HASHBINARY_H
 
-#include "hashtable.h"
 #include "binaryutils.h"
 #include "HashTable.h"
+#include "ReaderTicket.h"
 
-int readInsert(const string& filename, int number, HashTable<int>* table);
+int readInsert(const string& filename, int number, HashTable<int>* table, Ticket*& toWrite);
 
 int deleteRemove(const string& filename, int key, HashTable<int>* table);
 

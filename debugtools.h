@@ -54,10 +54,10 @@ for (int i = 0; i < table->m; i++) \
 cout << "Размер " << table->m << endl;\
 }
 
-#define PRINTEXECTIME(function, param1, param2) \
+#define PRINTEXECTIME(function) \
 { \
 	auto begin = std::chrono::steady_clock::now(); \
-	function(param1, param2); \
+	function \
 	auto end = std::chrono::steady_clock::now(); \
   	auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin); \
 	cout << "Выполнение операции заняло " << elapsed_ms.count() << endl; \

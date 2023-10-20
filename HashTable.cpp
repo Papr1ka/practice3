@@ -305,7 +305,8 @@ T HashTable<T>::pop(int key, bool& success)
     int index = this->popItem(key, success);
     if (success)
     {
-        return this->items[index].getValue(success);
+        bool unused;
+        return this->items[index].getValue(unused);
     }
     return 0;
 }

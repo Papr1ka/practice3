@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 add_executable(siaod3 main.cpp
         binaryutils.h
         binaryutils.cpp
+        hashtable.h
         hashbinary.h
         hashbinary.cpp
         debugtools.h

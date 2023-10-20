@@ -56,7 +56,7 @@ int printFromBin(const string& filename)
 
 int getRecordFromBin(const string& filename, int number, Ticket*& toWrite)
 {
-    if (number < 0)
+    if (number <= 0)
     {
         return -2;
     }
