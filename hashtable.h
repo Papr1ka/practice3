@@ -147,9 +147,9 @@ public:
 
     void insert(int key, int value);
 
-    int get(int key);
+    int get(int key, bool& success);
 
-    int remove(int key);
+    int remove(int key, bool& success);
 
     friend void testHeshT();
 };

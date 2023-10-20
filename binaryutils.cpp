@@ -90,43 +90,20 @@ int deleteRecordFromBinByKey(const string& filename, int key)
     rOldStream.open(filename, ios::ios_base::binary | ios::ios_base::in | ios::ios_base::out);
     CHECK(rOldStream, -1)
 
+    Ticket buffer;
     int offset = 0;
     bool isFind = false;
-    int iteration = 0;
-    int positionBuffer = 0;
-    int iter = 0;
-    Ticket buffer;
 
-    rOldStream.seekg(0, std::fstream::end);
-    int recordCount = rOldStream.tellg();
-    recordCount = recordCount / sizeof(Ticket);
-    rOldStream.seekg(0, std::fstream::beg);
-
-    while (!(rOldStream.peek() == EOF || iter > recordCount))
+    while (rOldStream.peek() != EOF)
     {
         rOldStream.read((char*)&buffer, sizeof(Ticket));
-
-        if (isFind)
+        if (buffer.key == key)
         {
-            positionBuffer = rOldStream.tellg();
-            rOldStream.seekg(offset + iteration * sizeof(Ticket));
-            rOldStream.write((char*)&buffer, sizeof(Ticket));
-            rOldStream.seekg(positionBuffer);
-            iteration++;
+            isFind = true;
+            offset *= sizeof(Ticket);
+            break;
         }
-        else
-        {
-            if (buffer.key == key)
-            {
-                isFind = true;
-                offset *= sizeof(Ticket);
-            }
-            else
-            {
-                offset++;
-            }
-        }
-        iter++;
+        offset++;
     }
 
 
@@ -136,9 +113,65 @@ int deleteRecordFromBinByKey(const string& filename, int key)
         return -2;
     }
 
+    Ticket last;
+
+    rOldStream.seekg(0, std::fstream::end);
+    int lastOffset = rOldStream.tellg();
+    lastOffset -= sizeof(Ticket);
+
+    rOldStream.seekg(lastOffset);
+
+    rOldStream.read((char*)&last, sizeof(Ticket));
+
+    rOldStream.seekg(offset);
+
+    rOldStream.write((char*)&last, sizeof(Ticket));
+
     rOldStream.close();
-    filesystem::resize_file(filename, (recordCount - 1) * sizeof(Ticket));
+
+    filesystem::resize_file(filename, lastOffset);
     return rOldStream.bad();
+}
+
+int deleteRecordFromBinByNumber(const string& filename, int number)
+{
+    if (number < 0)
+    {
+        return -2;
+    }
+    fstream rwStream;
+    rwStream.open(filename, ios::ios_base::binary | ios::ios_base::in | ios::ios_base::out);
+    CHECK(rwStream, -1)
+
+
+    rwStream.seekg(0, std::ifstream::end);
+    int fileLength = rwStream.tellg();
+
+    if (number * sizeof(Ticket) > fileLength)
+    {
+        rwStream.close();
+        return -2;
+    }
+
+    Ticket last;
+    int offset = number * sizeof(Ticket);
+
+    rwStream.seekg(0, std::fstream::end);
+    int lastOffset = rwStream.tellg();
+    lastOffset -= sizeof(Ticket);
+
+    rwStream.seekg(lastOffset);
+
+    rwStream.read((char*)&last, sizeof(Ticket));
+
+    rwStream.seekg(offset);
+
+    rwStream.write((char*)&last, sizeof(Ticket));
+
+    rwStream.close();
+
+    filesystem::resize_file(filename, lastOffset);
+    return rwStream.bad();
 }
 
 

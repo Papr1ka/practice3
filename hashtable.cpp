@@ -53,17 +53,34 @@ void testHeshT()
     table->insert(test, 0);
     PRINTTABLE()
 
+    bool success;
+
     LINE()
     test = 111001;
     cout << "Удаление ключа " << test << " из таблицы" << endl;
-    table->remove(test);
+    table->remove(test, success);
+    if (success)
+    {
+        cout << "Ключ удалён" << endl;
+    }
+    else
+    {
+        cout << "Ошибка, ключ не найден" << endl;
+    }
     PRINTTABLE()
 
     LINE()
     test = 112001;
     cout << "Поиск ключа " << test << " в таблице" << endl;
-    int value = table->get(test);
-    cout << "Найден элемент " << test << endl;
+    int value = table->get(test, success);
+    if (success)
+    {
+        cout << "Найден элемент " << test << endl;
+    }
+    else
+    {
+        cout << "Ошибка, элемент не найден" << endl;
+    }
     PRINTTABLE()
     delete table;
 
@@ -73,10 +90,18 @@ void testHeshT()
     table->insert(111001, 0);
     table->insert(112001, 0);
     table->insert(303010, 0);
-    table->remove(112001);
+    table->remove(112001, success);
     PRINTTABLE()
-    value = table->get(303010);
-    cout << "Найден элемент " << 303010 << endl;
+    value = table->get(303010, success);
+
+    if (success)
+    {
+        cout << "Найден элемент " << 303010 << endl;
+    }
+    else
+    {
+        cout << "Ошибка, элемент не найден" << endl;
+    }
 }
 
 int HTable::getKeyHash(int key)
@@ -238,17 +263,26 @@ void HashTable::insert(int key, int value)
     }
 }
 
-int HashTable::get(int key)
+int HashTable::get(int key, bool& success)
 {
     int index = this->table->find(key);
     if (index == -1)
     {
-        return -1;
+        success = false;
+        return 0;
     }
+    success = true;
     return this->table->get(index);
 }
 
-int HashTable::remove(int key)
+int HashTable::remove(int key, bool& success)
 {
+    int index = this->table->pop(key);
+    if (index == -1)
+    {
+        success = false;
+        return 0;
+    }
+    success = true;
     return this->table->pop(key);
 }
