@@ -1,4 +1,4 @@
-#include "binaryutils.h"
+#include "BinaryUtils.h"
 #include <filesystem>
 
 int addRecordToBin(const string& filename, const Ticket* record)
@@ -84,53 +84,29 @@ int getRecordFromBin(const string& filename, int number, Ticket*& toWrite)
     ENDSTREAM(rOldStream)
 }
 
-int deleteRecordFromBinByKey(const string& filename, int key)
+int searchRecordFromBin(const string& filename, int key, Ticket*& toWrite, int& number)
 {
-    fstream rOldStream;
-    rOldStream.open(filename, ios::ios_base::binary | ios::ios_base::in | ios::ios_base::out);
+    ifstream rOldStream;
+    rOldStream.open(filename, ios::ios_base::binary);
     CHECK(rOldStream, -1)
 
     Ticket buffer;
-    int offset = 0;
-    bool isFind = false;
+    int i = 1;
 
     while (rOldStream.peek() != EOF)
     {
         rOldStream.read((char*)&buffer, sizeof(Ticket));
         if (buffer.key == key)
         {
-            isFind = true;
-            offset *= sizeof(Ticket);
-            break;
+            toWrite = new Ticket(buffer);
+            number = i;
+            ENDSTREAM(rOldStream)
         }
-        offset++;
+        i++;
     }
-
-
-    if (!isFind)
-    {
-        rOldStream.close();
-        return -2;
-    }
-
-    Ticket last;
-
-    rOldStream.seekg(0, std::fstream::end);
-    int lastOffset = rOldStream.tellg();
-    lastOffset -= sizeof(Ticket);
-
-    rOldStream.seekg(lastOffset);
-
-    rOldStream.read((char*)&last, sizeof(Ticket));
-
-    rOldStream.seekg(offset);
-
-    rOldStream.write((char*)&last, sizeof(Ticket));
 
     rOldStream.close();
-
-    filesystem::resize_file(filename, lastOffset);
-    return rOldStream.bad();
+    return -2;
 }
 
 int deleteRecordFromBinByNumber(const string& filename, int number)
@@ -209,13 +185,32 @@ void testBinF(const string& txtFilename)
         }
     }
 
+    LINE()
+    cout << "Поиск записи по ключу " << 2123 << " из файла " << binFilename << "..." << endl;
+    int n;
+    result = searchRecordFromBin(binFilename, 2123, record, n);
+    TESTCODE(result)
+    if (result == 0)
+    {
+        if (record == nullptr)
+        {
+            cout << "Ошибка, функция вернула успех, но запись nullptr" << endl;
+        }
+        else
+        {
+            record->print();
+            cout << "Порядковый номер записи: " << n << endl;
+            CLEAR(record)
+        }
+    }
+
     recordNumber = 923;
     LINE()
     cout << "Удаление записи с ключом " << recordNumber << " из файла " << binFilename << "..." << endl;
     cout << "Файл до: " << endl;
     printFromBin(binFilename);
     cout << "Начало операции" << endl;
-    result = deleteRecordFromBinByKey(binFilename, recordNumber);
+    result = deleteRecordFromBinByNumber(binFilename, recordNumber);
     cout << endl << "Файл после:" << endl;
     printFromBin(binFilename);
     TESTCODE(result)

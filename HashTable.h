@@ -76,6 +76,12 @@ private:
 
     int getBiasHash(int key);
 
+    //возвращает индекс элемента в массиве таблицы
+    int findItem(int key, bool& success);
+
+    //возвращает индекс элемента в массиве таблицы
+    int popItem(int key, bool& success);
+
 public:
     HashTable();
 
@@ -84,17 +90,23 @@ public:
 
     ~HashTable();
 
-    //возвращает индекс элемента в массиве таблицы
-    int findItem(int key, bool& success);
+    //возвращает текущий размер таблицы
+    int getSize();
 
-    //возвращает индекс элемента в массиве таблицы
-    int popItem(int key, bool& success);
+    //возвращает количество занятых и неудалённых ячеек
+    int getFilled();
+
+    //возвращает количество удалённых ячеек
+    int getDeleted();
+
+    //возвращает отношение количества занятых к размеру таблицы в процентах (0-100)
+    int getFilledPercent();
 
     bool needRehash();
 
     void reHash();
-public:
-    void insert(int key, T value);
+
+    void insert(int key, T value, bool& success);
 
     T get(int key, bool& success);
     T get(int key);

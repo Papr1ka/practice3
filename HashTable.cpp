@@ -3,7 +3,7 @@
 //
 
 #include "HashTable.h"
-#include "debugtools.h"
+#include "DebugTools.h"
 
 template<typename T>
 TableItem<T>::TableItem()
@@ -139,6 +139,30 @@ HashTable<T>::~HashTable()
 }
 
 template<typename T>
+int HashTable<T>::getSize()
+{
+    return this->m;
+}
+
+template<typename T>
+int HashTable<T>::getFilled()
+{
+    return this->n;
+}
+
+template<typename T>
+int HashTable<T>::getDeleted()
+{
+    return this->deleted;
+}
+
+template<typename T>
+int HashTable<T>::getFilledPercent()
+{
+    return (this->n + this->deleted) * 100 / this->m;
+}
+
+template<typename T>
 int HashTable<T>::getKeyHash(int key)
 {
     double b = key * A;
@@ -190,6 +214,7 @@ int HashTable<T>::popItem(int key, bool& success)
     }
     this->items[index].remove();
     this->deleted++;
+    this->n--;
     return index;
 }
 
@@ -220,7 +245,7 @@ void HashTable<T>::reHash()
         if (!buffer.isOpened())
         {
             buffer.clearDeleted();
-            this->insert(buffer.getKey(unused), buffer.getValue(unused));
+            this->insert(buffer.getKey(unused), buffer.getValue(unused), unused);
         }
     }
 
@@ -228,7 +253,7 @@ void HashTable<T>::reHash()
 }
 
 template<typename T>
-void HashTable<T>::insert(int key, T value)
+void HashTable<T>::insert(int key, T value, bool& success)
 {
     bool unused;
     TableItem<T> item(key, value);
@@ -240,6 +265,12 @@ void HashTable<T>::insert(int key, T value)
     TableItem buffer = this->items[index];
     while (!(buffer.isOpened() && !buffer.isDeleted()))
     {
+        //Проверка на вставку элемента с дублированием ключа
+        if (buffer.getKey(unused) == key && !buffer.isDeleted())
+        {
+            success = false;
+            return;
+        }
         index = (index + bias) % this->m;
 #ifdef DEBUG
         item.debugPrimaryIndexes.push_back(index);
@@ -253,6 +284,7 @@ void HashTable<T>::insert(int key, T value)
     {
         this->reHash();
     }
+    success = true;
 }
 
 template<typename T>
@@ -275,7 +307,7 @@ T HashTable<T>::get(int key)
     {
         return 0;
     }
-    return this->items[index];
+    return this->items[index].getValue(success);
 }
 
 template<typename T>
@@ -328,6 +360,7 @@ void testHeshT()
 {
 
     HashTable<int>* table = new HashTable<int>(2);
+    bool success;
 
     LINE()
     cout << "Проверка формирования хешей для ключей..." << endl;
@@ -356,72 +389,113 @@ void testHeshT()
     int test;
     test = 111001;
     cout << "Вставка без коллизии " << test << endl;
-    table->insert(test, 0);
+    table->insert(test, 1, success);
     PRINTTABLE()
+    TESTCODEREVERSECONDITION(success, (table->get(test) == 1))
+
+    LINE()
+    cout << "Вставка дубликата" << endl;
+    test = 111001;
+    table->insert(test, 2, success);
+    PRINTTABLE()
+    TESTCODECONDITION(success, (table->get(test) == 1))
 
     LINE()
     test = 112001;
     cout << "Вставка с коллизией " << test << endl;
-    table->insert(test, 0);
+    table->insert(test, 3, success);
     PRINTTABLE()
+    TESTCODEREVERSECONDITION(success, (table->get(test) == 3))
 
     LINE()
     test = 212001;
     cout << "Вставка с рехэшированием " << test << " и " << " 303002" << endl;
-    table->insert(test, 0);
+    table->insert(test, 4, success);
     test = 303002;
-    table->insert(test, 0);
+    table->insert(test, 5, success);
     PRINTTABLE()
-
-    bool success;
+    TESTCODEREVERSECONDITION(success, (
+                    (table->get(111001) == 1) &&
+                    (table->get(112001) == 3) &&
+                    (table->get(212001) == 4) &&
+                            (table->get(303002) == 5) &&
+                            (table->getSize() == 8) &&
+                            (table->getFilled() == 4))
+    )
 
     LINE()
     test = 111001;
     cout << "Удаление ключа " << test << " из таблицы" << endl;
-    table->pop(test, success);
+    int q = table->pop(test, success);
     if (success)
     {
-        cout << "Ключ удалён" << endl;
+        cout << "Ключ удалён, значение: " << q << endl;
     }
     else
     {
         cout << "Ошибка, ключ не найден" << endl;
     }
     PRINTTABLE()
+    bool temp;
+    table->get(test, temp);
+    TESTCODEREVERSECONDITION(success, ((!temp) && (table->getDeleted() == 1) && table->getFilled() == 3))
+
+    test = 111001;
+    cout << "Вставка нового элемента с значением ключа, идентичному удалённому " << test << endl;
+    table->insert(test, -3, success);
+    PRINTTABLE()
+    TESTCODEREVERSECONDITION(success, (table->get(test) == -3))
 
     LINE()
-    test = 112001;
-    cout << "Поиск ключа " << test << " в таблице" << endl;
+    test = 111001;
+    cout << "Поиск ключа, у которого есть как свежее значение, так и удалённое " << test << " в таблице" << endl;
     int value = table->get(test, success);
     if (success)
     {
-        cout << "Найден элемент " << test << endl;
+        cout << "Найден элемент " << test << " значение: " << value << endl;
     }
     else
     {
         cout << "Ошибка, элемент не найден" << endl;
     }
     PRINTTABLE()
+    TESTCODEREVERSECONDITION(success, (value == -3))
+
+    LINE()
+    test = 112001;
+    cout << "Поиск ключа " << test << " в таблице" << endl;
+    value = table->get(test, success);
+    if (success)
+    {
+        cout << "Найден элемент " << test << " значение: " << value << endl;
+    }
+    else
+    {
+        cout << "Ошибка, элемент не найден" << endl;
+    }
+    PRINTTABLE()
+    TESTCODEREVERSECONDITION(success, (value == 3))
     delete table;
 
     LINE()
     cout << "Поиск элемента, размещённого после удалённого с одним значением хэша ключей элементов" << endl;
     table = new HashTable<int>(2);
-    table->insert(111001, 0);
-    table->insert(112001, 0);
-    table->insert(303010, 0);
+    table->insert(111001, 6, success);
+    table->insert(112001, 7, success);
+    table->insert(303010, 8, success);
     table->pop(112001, success);
     PRINTTABLE()
     value = table->get(303010, success);
 
     if (success)
     {
-        cout << "Найден элемент " << 303010 << endl;
+        cout << "Найден элемент " << 303010 << " значение " << value << endl;
     }
     else
     {
         cout << "Ошибка, элемент не найден" << endl;
     }
+    TESTCODEREVERSECONDITION(success, (value == 8))
 
     LINE()
     cout << "Проверка замены значения элемента, метод udpate" << endl;
@@ -440,6 +514,7 @@ void testHeshT()
         cout << "Ошибка, не вышло" << endl;
     }
     cout << "Ключ " << key << " значение " << table->get(111001, success) << endl;
+    TESTCODEREVERSECONDITION(success, (table->get(key) == newValue))
     cout << "Тестирование завершено" << endl;
 }
 #endif

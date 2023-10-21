@@ -1,10 +1,10 @@
 #include <iostream>
-#include "hashbinary.h"
+#include "HashBinary.h"
 #include "HashTable.h"
 
 int main() {
-    //testBinF("input.txt");
+    testBinF("input.txt");
     testHeshT();
-    test();
+    //test();
     return 0;
 }

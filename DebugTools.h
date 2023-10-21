@@ -18,6 +18,19 @@
     }\
 }
 
+#define TESTCODECONDITION(code, condition) \
+{                      \
+    if (code == 0 && condition)     \
+    {                  \
+        cout << "+ Успешно" << endl << endl;                   \
+    }                  \
+    else               \
+    {                  \
+        cout << "- Ошибка, код " << code << " условие " << condition << endl << endl;      \
+        return;\
+    }\
+}
+
 #define TESTCODEREVERSE(code) \
 {                      \
     if (code != 0)     \
@@ -27,6 +40,19 @@
     else               \
     {                  \
         cout << "- Ошибка, код " << code << endl << endl;      \
+        return;\
+    }\
+}
+
+#define TESTCODEREVERSECONDITION(code, condition) \
+{                      \
+    if (code != 0 && condition)     \
+    {                  \
+        cout << "+ Успешно" << endl << endl;                   \
+    }                  \
+    else               \
+    {                  \
+        cout << "- Ошибка, код " << code << " условие " << condition << endl << endl;      \
         return;\
     }\
 }

@@ -1,19 +1,24 @@
-#include "hashbinary.h"
+#include "HashBinary.h"
 #include <chrono>
 
-//key must be greater then 0
-
-int readInsert(const string& filename, int number, HashTable<int>* table, Ticket*& toWrite)
+int searchInsert(const string& filename, int key, HashTable<int>* table, Ticket*& toWrite)
 {
     if (toWrite == nullptr)
     {
         toWrite = new Ticket();
     }
-    int r = getRecordFromBin(filename, number, toWrite);
+    int number;
+    int r = searchRecordFromBin(filename, number, toWrite, number);
 
+    bool success;
     if (r == 0)
     {
-        table->insert(toWrite->key, number);
+        //если success будет false, значит мы пытались вставить дубликат и ключ не уникален
+        table->insert(key, number, success);
+        if (!success)
+        {
+            return -5;
+        }
     }
     return r;
 }
@@ -22,20 +27,26 @@ int readInsert(const string& filename, int number, HashTable<int>* table, Ticket
 int deleteRemove(const string& filename, int key,  HashTable<int>* table)
 {
     bool success;
+
+    //номер записи в файле
     int number = table->pop(key, success);
     if (success)
     {
         deleteRecordFromBinByNumber(filename, number);
         Ticket* lastTicket;
+
+        //изменение порядкового номера записи в файле для последней записи (так как удаление путём замены на последнюю запись)
         int r = getRecordFromBin(filename, number, lastTicket);
+        if (r != 0)
+        {
+            return -2;
+        }
         table->update(lastTicket->key, number, success);
         if (success)
         {
             return 0;
         }
         return -1;
-        //добавить в таблицу метод update
-        //заменить в таблице значение элемента с ключом последнего элемента в файле на номер index
     }
     return -3;
 }
@@ -48,12 +59,11 @@ int readGet(const string& filename, int key,  HashTable<int>* table, Ticket*& to
     {
         return getRecordFromBin(filename, index, toWrite);
     }
-    return 0;
+    return searchInsert(filename, key, table, toWrite);
 }
 
 void test() {
 #define RECORDSINFILE 5
-    int r;
     string textfilename = "input.txt";
     string filename = "test.bin";
 
@@ -66,7 +76,7 @@ void test() {
 
     for (int i = 1; i < RECORDSINFILE + 1; i++)
     {
-        r = readInsert(filename, i, table, b);
+        searchInsert(filename, i, table, b);
         keys[i - 1] = b->key;
     }
     bool success;
@@ -84,7 +94,7 @@ void test() {
     }
     for (int i = 0; i < 1000000; i++)
     {
-        readInsert(filename, i, table, b);
+        searchInsert(filename, i, table, b);
     }
     PRINTEXECTIME(
             readGet(filename, 3, table, buffer, success);

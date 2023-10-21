@@ -4,12 +4,11 @@ project(siaod3)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(siaod3 main.cpp
-        binaryutils.h
-        binaryutils.cpp
-        hashtable.h
-        hashbinary.h
-        hashbinary.cpp
-        debugtools.h
+        BinaryUtils.h
+        BinaryUtils.cpp
+        HashBinary.h
+        HashBinary.cpp
+        DebugTools.h
         ReaderTicket.h
         HashTable.cpp
         HashTable.h)
