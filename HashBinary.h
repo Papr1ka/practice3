@@ -9,13 +9,14 @@
 #include "HashTable.h"
 #include "ReaderTicket.h"
 
-//Поисе записи в файле по ключу, записывает номер записи в хэш таблицу
+//Поиск записи в файле по ключу, записывает номер записи в хэш таблицу
 int searchInsert(const string& filename, int key, HashTable<int>* table, Ticket*& toWrite);
 
 //удаляет запись
 int deleteRemove(const string& filename, int key, HashTable<int>* table);
 
-int readGet(const string& filename, int key, HashTable<int>* table, Ticket*& toWrite);
+//получение записи из файла по ключу с использованием хэш таблицы, если в хэш таблице значение не найдено, вызывается searchInsert
+int readGet(const string& filename, int key,  HashTable<int>* table, Ticket*& toWrite);
 
 void test();
 

@@ -60,6 +60,7 @@ public:
 #ifdef DEBUG
     void print();
     friend void testHeshT();
+    friend void test();
 #endif
 };
 
@@ -119,6 +120,7 @@ public:
 
 #ifdef DEBUG
     friend void testHeshT();
+    friend void test();
 #endif
 };
 

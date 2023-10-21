@@ -5,6 +5,7 @@
 int main() {
     testBinF("input.txt");
     testHeshT();
-    //test();
+    test();
+    cout << "Общее тестирование завершено" << endl;
     return 0;
 }

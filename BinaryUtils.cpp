@@ -230,5 +230,5 @@ void testBinF(const string& txtFilename)
     printFromBin(binFilename);
     TESTCODE(result)
 
-    cout << "Тестирование завершено" << endl;
+    cout << "Тестирование модуля для работы с бинарными файлами завершено" << endl;
 }

@@ -515,6 +515,6 @@ void testHeshT()
     }
     cout << "Ключ " << key << " значение " << table->get(111001, success) << endl;
     TESTCODEREVERSECONDITION(success, (table->get(key) == newValue))
-    cout << "Тестирование завершено" << endl;
+    cout << "Тестирование модуля для работы с хэш таблицей завершено" << endl;
 }
 #endif
