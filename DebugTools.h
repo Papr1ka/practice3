@@ -86,7 +86,7 @@ cout << "Размер " << table->m << endl;\
 	function \
 	auto end = std::chrono::steady_clock::now(); \
   	auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin); \
-	cout << "Выполнение операции заняло " << elapsed_ms.count() << endl; \
+	cout << "Выполнение операции заняло " << elapsed_ms.count() << " ms" << endl; \
 }
 
 #endif //SIAOD3_DEBUGTOOLS_H

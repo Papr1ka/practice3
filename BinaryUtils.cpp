@@ -69,14 +69,14 @@ int getRecordFromBin(const string& filename, int number, Ticket*& toWrite)
     rOldStream.seekg(0, std::ifstream::end);
     int fileLength = rOldStream.tellg();
 
-    if (number * sizeof(Ticket) > fileLength)
+    if ((number + 1) * sizeof(Ticket) > fileLength)
     {
         rOldStream.close();
         return -2;
     }
 
     rOldStream.seekg(0, std::ifstream::beg);
-    rOldStream.seekg((number - 1) * sizeof(Ticket));
+    rOldStream.seekg(number * sizeof(Ticket));
     Ticket buffer;
     rOldStream.read((char*)&buffer, sizeof(Ticket));
     toWrite = new Ticket(buffer);
@@ -123,7 +123,7 @@ int deleteRecordFromBinByNumber(const string& filename, int number)
     rwStream.seekg(0, std::ifstream::end);
     int fileLength = rwStream.tellg();
 
-    if (number * sizeof(Ticket) > fileLength)
+    if ((number + 1) * sizeof(Ticket) > fileLength)
     {
         rwStream.close();
         return -2;
@@ -204,9 +204,9 @@ void testBinF(const string& txtFilename)
         }
     }
 
-    recordNumber = 923;
+    recordNumber = 1;
     LINE()
-    cout << "Удаление записи с ключом " << recordNumber << " из файла " << binFilename << "..." << endl;
+    cout << "Удаление записи под номером " << recordNumber << " из файла " << binFilename << "..." << endl;
     cout << "Файл до: " << endl;
     printFromBin(binFilename);
     cout << "Начало операции" << endl;

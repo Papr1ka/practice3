@@ -8,7 +8,7 @@ int searchInsert(const string& filename, int key, HashTable<int>* table, Ticket*
         toWrite = new Ticket();
     }
     int number;
-    int r = searchRecordFromBin(filename, number, toWrite, number);
+    int r = searchRecordFromBin(filename, key, toWrite, number);
 
     bool success;
     if (r == 0)
@@ -68,10 +68,12 @@ void test() {
     string textfilename = "input.txt";
     string filename = "test.bin";
 
-    convertTextToBin(textfilename, filename);
+    LINE()
+    cout << "Конвертация входного файла txt -> bin" << endl;
+    int created = convertTextToBin(textfilename, filename);
+    TESTCODE(created)
 
     HashTable<int>* table = new  HashTable<int>(RECORDSINFILE);
-    int keys[RECORDSINFILE];
 
     Ticket* b;
     LINE()
@@ -81,24 +83,26 @@ void test() {
     LINE()
     cout << "Чтение файла и формирование таблицы" << endl;
 
-    for (int i = 1; i < RECORDSINFILE + 1; i++)
-    {
-        readGet(filename, i, table, b);
-        keys[i - 1] = b->key;
-    }
+    readGet(filename, 923, table, b);
+    readGet(filename, 2123, table, b);
+    readGet(filename, 3543, table, b);
+    readGet(filename, 4, table, b);
+    readGet(filename, 5412, table, b);
 
-    cout << "Как можно заметить, потребовалось рехэширование" << endl;
+    cout << "Как можно заметить, потребовалось рехэширование и для ключа 4 возникла коллизия" << endl;
     PRINTTABLE()
     printFromBin(filename);
 
     bool success;
 
     LINE()
-    cout << "Удаление записи по ключу" << endl;
-    deleteRemove(filename, keys[2], table);
+    cout << "Удаление записи по ключу 4" << endl;
+    deleteRemove(filename, 4, table);
 
     PRINTTABLE()
     printFromBin(filename);
+
+    return;
 
     LINE()
     cout << "Тестирование на особо крупном файле, 1000000 записей" << endl;
@@ -111,33 +115,34 @@ void test() {
     strcpy(buffer->fio, value);
     value = "1234567890";
     strcpy(buffer->phoneNumber, value);
+    int records = 1000000;
 
     cout << "Создание файла..." << endl;
-    for (int i = 0; i < 1000000; i++)
+    for (int i = 0; i < records; i++)
     {
         buffer->key = i;
         addRecordToBin(filename, buffer);
     }
 
     cout << "Заполнение таблицы в тестовом режиме (знаем номера записей без чтения файлов)..." << endl;
-    for (int i = 0; i < 1000000; i++)
+    for (int i = 0; i < records; i++)
     {
         table->insert(i, i + 1, success);
     }
 
     cout << "Время чтения записи из файла" << endl;
 
-    cout << "4-я запись" << endl;
+    cout << "0-я запись" << endl;
     PRINTEXECTIME(
-            readGet(filename, 3, table, buffer);
+            readGet(filename, 0, table, buffer);
     )
-    cout << "450001-я запись" << endl;
+    cout << records / 2 << "-я запись" << endl;
     PRINTEXECTIME(
-            readGet(filename, 450000, table, buffer);
+            readGet(filename, records / 2, table, buffer);
     )
-    cout << "999001-я запись" << endl;
+    cout << records - 1 << "-я запись" << endl;
     PRINTEXECTIME(
-            readGet(filename, 999000, table, buffer);
+            readGet(filename, records - 1, table, buffer);
     )
     delete table;
     delete buffer;

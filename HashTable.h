@@ -23,7 +23,7 @@ template<typename T>
 class HashTable;
 
 template<typename T>
-struct TableItem {
+class TableItem {
 protected:
     int key;
     T value;
