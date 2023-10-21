@@ -26,39 +26,79 @@ int searchInsert(const string& filename, int key, HashTable<int>* table, Ticket*
 
 int deleteRemove(const string& filename, int key,  HashTable<int>* table)
 {
+    /*
+     * Коды возврата:
+     * 0 - запись была найдена и удалена
+     * -1 - не удалось открыть файл
+     * -2 - запись не найдена
+     * */
     bool success;
 
     //номер записи в файле
-    int number = table->pop(key, success);
+    int number;
+    //удаление и получение сведений об элементе таблицы
+    table->pop(key, success, number);
     if (success)
     {
-        deleteRecordFromBinByNumber(filename, number);
+        //данные о записи были в хэш таблице и отныне удалены
+        int r = deleteRecordFromBinByNumber(filename, number);
+        if (r != 0)
+        {
+            return r;
+        }
         Ticket* lastTicket;
 
         //изменение порядкового номера записи в файле для последней записи (так как удаление путём замены на последнюю запись)
-        int r = getRecordFromBin(filename, number, lastTicket);
+
+        //получение только что записанной на место удалённой записи с целью узнать ключ ранее последней записи
+        r = getRecordFromBin(filename, number, lastTicket);
         if (r != 0)
         {
-            return -2;
+            return r;
         }
+        //изменение номера в файле для бывшей ранее последней записи
         table->update(lastTicket->key, number, success);
-        if (success)
-        {
-            return 0;
-        }
-        return -1;
+        return 0;
     }
-    return -3;
+    else
+    {
+        //данныех о записи не было в хэш таблице, но возможно они есть в файле
+        Ticket* ticket;
+        //поиск записи по ключу с целью узнать порядковый номер
+        int r = searchRecordFromBin(filename, key, ticket, number);
+        if (r != 0)
+        {
+            return r;
+        }
+        //если запись есть в файле
+
+        //удаление записи по порядковому номеру
+        r = deleteRecordFromBinByNumber(filename, number);
+        if (r != 0)
+        {
+            return r;
+        }
+        //изменение порядкового номера записи в файле для последней записи (так как удаление путём замены на последнюю запись)
+        r = getRecordFromBin(filename, number, ticket);
+        if (r != 0)
+        {
+            return r;
+        }
+        //изменение номера в файле для бывшей ранее последней записи
+        table->update(ticket->key, number, success);
+        return 0;
+    }
 }
 
 
 int readGet(const string& filename, int key,  HashTable<int>* table, Ticket*& toWrite)
 {
     bool success;
-    int index = table->get(key, success);
+    int index;
+    table->get(key, success, index);
     if (success)
     {
-        return getRecordFromBin(filename, index, toWrite);
+        return 20 + getRecordFromBin(filename, index, toWrite);
     }
     return searchInsert(filename, key, table, toWrite);
 }
@@ -79,8 +119,18 @@ void test() {
     LINE()
     cout << "Исходная хэш таблица" << endl;
     PRINTTABLE()
+    cout << "Тестирование поиска записи по ключу и добавления в таблицу" << endl;
+    searchInsert(filename, 923, table, b);
+    b->print();
+    cout << "Таблица после чтения" << endl;
+    PRINTTABLE()
+
+    delete table;
+    table = new  HashTable<int>(RECORDSINFILE);
 
     LINE()
+    cout << "Исходная хэш таблица" << endl;
+    PRINTTABLE()
     cout << "Чтение файла и формирование таблицы" << endl;
 
     readGet(filename, 923, table, b);
@@ -97,9 +147,15 @@ void test() {
 
     LINE()
     cout << "Удаление записи по ключу 4" << endl;
+    cout << "Файл до удаления" << endl;
+    printFromBin(filename);
+    cout << "Таблица до удаления" << endl;
+    PRINTTABLE()
     deleteRemove(filename, 4, table);
 
+    cout << "Таблица после удаления" << endl;
     PRINTTABLE()
+    cout << "Файл после удаления" << endl;
     printFromBin(filename);
 
     LINE()

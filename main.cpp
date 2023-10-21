@@ -4,6 +4,7 @@
 
 class Test
 {
+public:
     Test()
     {
 
@@ -11,11 +12,8 @@ class Test
 };
 
 int main() {
-    testBinF("input.txt");
-    testHeshT();
-
-    HashTable<Test*> table;
-    table.get(0);
+    //testBinF("input.txt");
+    //testHeshT();
     test();
     cout << "Общее тестирование завершено" << endl;
     return 0;
