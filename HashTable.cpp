@@ -103,19 +103,6 @@ void TableItem<T>::print()
 #endif
 
 template<typename T>
-HashTable<T>::HashTable()
-{
-    this->m = 16;
-    this->n = 0;
-    this->deleted = 0;
-    this->items = new TableItem<T>[16];
-    for (int i = 0; i < 16; ++i)
-    {
-        this->items[i] = TableItem<T>();
-    }
-}
-
-template<typename T>
 HashTable<T>::HashTable(unsigned int size)
 {
     this->m = 1 << size;
@@ -263,7 +250,7 @@ void HashTable<T>::insert(int key, T value, bool& success)
 #endif
     int bias = this->getBiasHash(item.getKey(unused));
     TableItem buffer = this->items[index];
-    while (!(buffer.isOpened() && !buffer.isDeleted()))
+    while (!(buffer.isOpened()))
     {
         //Проверка на вставку элемента с дублированием ключа
         if (buffer.getKey(unused) == key && !buffer.isDeleted())
@@ -279,6 +266,10 @@ void HashTable<T>::insert(int key, T value, bool& success)
     }
     this->items[index] = item;
     this->n++;
+    if (buffer.isDeleted())
+    {
+        this->deleted--;
+    }
 
     if (this->needRehash())
     {
@@ -448,7 +439,7 @@ void testHeshT()
 
     LINE()
     test = 111001;
-    cout << "Поиск ключа, у которого есть как свежее значение, так и удалённое " << test << " в таблице" << endl;
+    cout << "Поиск ключа, у которого есть свежее значение, но было удалённое " << test << " в таблице" << endl;
     int value = table->get(test, success);
     if (success)
     {

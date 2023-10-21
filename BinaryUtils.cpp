@@ -56,7 +56,7 @@ int printFromBin(const string& filename)
 
 int getRecordFromBin(const string& filename, int number, Ticket*& toWrite)
 {
-    if (number <= 0)
+    if (number < 0)
     {
         return -2;
     }
@@ -91,7 +91,7 @@ int searchRecordFromBin(const string& filename, int key, Ticket*& toWrite, int& 
     CHECK(rOldStream, -1)
 
     Ticket buffer;
-    int i = 1;
+    int i = 0;
 
     while (rOldStream.peek() != EOF)
     {
@@ -171,7 +171,7 @@ void testBinF(const string& txtFilename)
     LINE()
     cout << "Получение записи под номером " << recordNumber << " из файла " << binFilename << "..." << endl;
     result = getRecordFromBin(binFilename, recordNumber, record);
-    TESTCODE(result)
+    TESTCODECONDITION(result, (record->key == 2123))
     if (result == 0)
     {
         if (record == nullptr)
@@ -189,7 +189,7 @@ void testBinF(const string& txtFilename)
     cout << "Поиск записи по ключу " << 2123 << " из файла " << binFilename << "..." << endl;
     int n;
     result = searchRecordFromBin(binFilename, 2123, record, n);
-    TESTCODE(result)
+    TESTCODECONDITION(result, (record->phoneNumber[1] == '4')) //+432523423433
     if (result == 0)
     {
         if (record == nullptr)
@@ -213,7 +213,7 @@ void testBinF(const string& txtFilename)
     result = deleteRecordFromBinByNumber(binFilename, recordNumber);
     cout << endl << "Файл после:" << endl;
     printFromBin(binFilename);
-    TESTCODE(result)
+    TESTCODECONDITION(result, (searchRecordFromBin(binFilename, 2123, record, recordNumber) == -2))
 
     LINE()
     cout << "Добавление записи:" << endl;
@@ -228,7 +228,7 @@ void testBinF(const string& txtFilename)
     result = addRecordToBin(binFilename, record);
     cout << endl << "Файл после добавления" << endl;
     printFromBin(binFilename);
-    TESTCODE(result)
+    TESTCODECONDITION(result, (searchRecordFromBin(binFilename, record->key, record, recordNumber) == 0))
 
     cout << "Тестирование модуля для работы с бинарными файлами завершено" << endl;
 }

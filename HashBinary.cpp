@@ -102,8 +102,6 @@ void test() {
     PRINTTABLE()
     printFromBin(filename);
 
-    return;
-
     LINE()
     cout << "Тестирование на особо крупном файле, 1000000 записей" << endl;
 

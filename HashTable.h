@@ -84,7 +84,18 @@ private:
     int popItem(int key, bool& success);
 
 public:
-    HashTable();
+    //по определённым причинам, для шаблонного класса конструктор по умолчанию пришлось реализовать в заголовочном файле для данного компилятора
+    HashTable()
+    {
+        this->m = 16;
+        this->n = 0;
+        this->deleted = 0;
+        this->items = new TableItem<T>[16];
+        for (int i = 0; i < 16; ++i)
+        {
+            this->items[i] = TableItem<T>();
+        }
+    }
 
     //size - степень числа 2
     HashTable(unsigned int size);
@@ -121,6 +132,7 @@ public:
 #ifdef DEBUG
     friend void testHeshT();
     friend void test();
+    friend int main();
 #endif
 };
 
