@@ -212,7 +212,7 @@ public:
         this->m = 1 << size;
         if (this->m <= 2)
         {
-            this->m = 2;
+            this->m = 4;
         }
         this->n = 0;
         this->deleted = 0;
